@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///.aibot.db"
+    DATABASE_URL: str = "sqlite:///db/aibot.db"
     REDIS_URL: str = "redis://localhost:6379/0"
 
     TELEGRAM_API_ID: Optional[int]
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         env_file_encoding = "utf-8"
         case_sensitive = True
 
