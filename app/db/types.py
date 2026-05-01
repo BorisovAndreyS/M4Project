@@ -2,8 +2,8 @@ import uuid
 from datetime import datetime
 from enum import StrEnum, Enum
 
-from sqlalchemy import Column, String, DateTime
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, String, DateTime, Enum, func, Text
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from sqlalchemy.sql.annotation import Annotated
 
 
@@ -14,20 +14,15 @@ class PostStatus(StrEnum):
     FAILED = "failed"
 
 
-class SourceType(Enum):
+class SourceType(StrEnum):
     SITE = "site"
     tg = "tg"
 
 
-ID = Annotated[int, Column(String,
-                           primary_key=True,
-                           index=True,
-                           default=uuid.uuid4)]
+ID = Annotated[int, mapped_column(primary_key=True, index=True, default=uuid.uuid4)]
+URL = Annotated[str, mapped_column(String(2048), nullable=False)]
+TextContent = Annotated[str | None, mapped_column(Text, nullable=True)]
+TimeStamp = Annotated[datetime, mapped_column(DateTime, nullable=False, server_default=func.now())]
 
-URL = Annotated[str, Column(String, nullable=False, index=True)]
-TextContent = Annotated[str, Column(String, nullable=True, index=True)]
-TimeStamp = Annotated[datetime, Column(DateTime, nullable=False, index=True, default=datetime.now)]
-
-STATUS_POST = Annotated[PostStatus, Column(Enum(PostStatus), nullable=False)]
-
-SOURCE_TYPE = Annotated[SourceType, Column(Enum(SourceType), nullable=False)]
+# STATUS_POST = Annotated[PostStatus, mapped_column(Enum(PostStatus), nullable=False)]
+# SOURCE_TYPE = Annotated[SourceType, mapped_column(Enum(SourceType), nullable=False)]
