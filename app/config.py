@@ -3,21 +3,21 @@ from typing import Optional
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///db/aibot.db"
+    DATABASE_URL: str = "sqlite:///app/db/aibot.db"
     REDIS_URL: str = "redis://localhost:6379/0"
 
-    TELEGRAM_API_ID: Optional[int]
-    TELEGRAM_API_HASH: Optional[str]
+    TELEGRAM_API_ID: Optional[int] = None
+    TELEGRAM_API_HASH: Optional[str] = None
     TELEGRAM_SESSION_NAME: str = "aibot_session"
-    TELEGRAM_CHANNEL_USERNAME: Optional[str]
+    TELEGRAM_CHANNEL_USERNAME: Optional[str] = None
 
-    OPENAI_KEY: Optional[str]
+    OPENAI_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o-mini"
 
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
 
-    PARSE_INTERVAL_MINUTES: int = 30
+    PARSE_INTERVAL_MINUTES: int = 1
 
     DEBUG: bool = True
 

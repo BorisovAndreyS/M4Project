@@ -1,46 +1,56 @@
 import uuid
 from datetime import datetime
 from enum import StrEnum, Enum
-
-from starlette.datastructures import URL
-
-from .types import TimeStamp, TextContent, ID, STATUS_POST, SOURCE_TYPE
-from pyparsing import Optional
-from sqlalchemy import Column, String, DateTime
-from sqlalchemy.orm import declarative_base
+from typing import Optional
+from app.db.types import TimeStamp, TextContent, ID, PostStatus, SourceType, URL
+from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Boolean, Enum as SQLEnum
+from sqlalchemy.orm import declarative_base, relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql.annotation import Annotated
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 class NewsItem(Base):
     __tablename__ = "news_items"
 
-    id: ID
-    title: str = Column(String, nullable=False, index=True)
-    url: Optional[URL]
-    summary: TextContent
+    id: Mapped[str] = mapped_column(nullable=False, primary_key=True, default=uuid.uuid4)
+    title: Mapped[str] = mapped_column(nullable=True, index=True)
+    url: Mapped[Optional[str]] = mapped_column(nullable=True, index=False)
+    summary: str = Column(Text)
     source: str = Column(String, nullable=False)
-    published_at: TimeStamp
-    raw_text: Optional[TextContent]
-    created_at: TimeStamp
+    published_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now)
+    raw_text: Mapped[Optional[str]] = Column(Text)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now)
+    posts = relationship("Post",
+                     back_populates="news_item",
+                     cascade="all, delete-orphan")
 
 
 class Post(Base):
     __tablename__ = "posts"
 
-    id: ID
-    news_id:  ID
-    generated_text: TextContent
-    published_at: TimeStamp
-    status: STATUS_POST
-    created_at: TimeStamp
+    id: Mapped[str] = mapped_column(nullable=False, primary_key=True, default=uuid.uuid4)
+    news_id: Mapped[str] = mapped_column(ForeignKey('news_items.id'), index=True)
+    generated_text: Mapped[Optional[str]] = Column(Text)
+    published_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now)
+    status: Mapped[PostStatus] = mapped_column(SQLEnum(PostStatus, native_enum=False), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now)
+
+    news_item: Mapped[Optional["NewsItem"]] = relationship("NewsItem", back_populates="posts")
 
 class Source(Base):
     __tablename__ = "sources"
-    
-    id: ID
-    type: SOURCE_TYPE
-    name: str = Column(String, nullable=False)
-    url: URL
-    enabled: bool
+
+    id: Mapped[str] = mapped_column(nullable=False, primary_key=True, default=uuid.uuid4)
+    type: Mapped[SourceType] = mapped_column(SQLEnum(SourceType, native_enum=False), nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    url: Mapped[Optional[str]] = mapped_column(nullable=True, index=False)
+    enabled: bool = Column(Boolean, nullable=False, default=True)
+
+class Keyword(Base):
+    __tablename__ = "keywords"
+
+    id: Mapped[str] = mapped_column(nullable=False, primary_key=True, default=uuid.uuid4)
+    word: str = Column(String, nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(nullable=False,default=datetime.now)
