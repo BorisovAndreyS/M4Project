@@ -1,0 +1,41 @@
+# Python/Кэш
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+.pytest_cache/
+.coverage
+.cache/
+.mypy_cache/
+
+# Виртуальные окружения (не должны попадать в образ)
+.venv/
+venv/
+ENV/
+env/
+
+# Секреты и конфигурация
+.env
+.secrets
+secrets.txt
+*.pem
+*.key
+
+# Инструменты разработки и IDE
+.git/
+.gitignore
+.vscode/
+.idea/
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# Артефакты сборки
+build/
+dist/
+*.egg-info/
+__pypackages__/
+
+# Документация и логи
+docs/_build/
+*.log
+README.md
