@@ -15,6 +15,7 @@ celery_app.conf.update(
     result_serializer='json',
     timezone='UTC',
     enable_utc=True,
+    worker_pool='solo',
     beat_schedule={
         'parse_news': {
             'task': 'parse_news',

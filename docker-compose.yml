@@ -41,7 +41,7 @@ services:
       redis:
         condition: service_healthy
 
-  celery_worker:
+  celery-worker:
     build: .
     env_file:
       - .env
@@ -54,7 +54,7 @@ services:
         condition: service_started
     command: celery -A celery_worker.celery_app worker --loglevel=info
 
-  celery_beat:
+  celery-beat:
     build: .
     env_file:
       - .env
