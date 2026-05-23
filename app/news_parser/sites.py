@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 from datetime import datetime
 from pprint import pprint
@@ -6,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from openai import base_url
 
+logger = logging.getLogger(__name__)
 
 class SiteParse(ABC):
     def __init__(self, url: str, articles_path: str = ''):
@@ -24,11 +26,21 @@ class HabrParser(SiteParse):
         self.source = 'habr'
 
     def parse(self):
-        response = requests.get(self.base_url + self.articles_path, headers={
+        response = requests.get(self.base_url + self.articles_path,
+                                headers={
             'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36'
-        })
+        },
+                                timeout=30)
+        response.raise_for_status()
+
         soup = BeautifulSoup(response.text, 'html.parser')
-        articles = soup.find('div', class_='tm-articles-list').find_all('article')
+
+        container = soup.find('div', class_='tm-articles-list')
+        if not container:
+            logger.warning('Не найдена лента статей — возможно, изменилась вёрстка')
+            return []
+
+        articles = container.find_all('article')
         res = []
         for article in articles:
             summary = article.find('div', class_='article-formatted-body').text

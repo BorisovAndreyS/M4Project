@@ -13,7 +13,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
+  migration:
+    build: .
+    command: alembic upgrade head
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
   redis:
     container_name: redis
     image: redis:8-alpine
@@ -45,6 +51,8 @@ services:
     build: .
     env_file:
       - .env
+    volumes:
+      - ./alembic:/app/alembic
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,7 +60,7 @@ services:
         condition: service_healthy
       app:
         condition: service_started
-    command: celery -A celery_worker.celery_app worker --loglevel=info
+    command: celery -A celery_worker.celery_app worker --loglevel=info --pool=gevent
 
   celery-beat:
     build: .
